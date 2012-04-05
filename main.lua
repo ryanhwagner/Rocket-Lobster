@@ -9,7 +9,25 @@
 --==============================================================
 print ( "ryannnn" )
 
-SCREEN_UNIT
+SCREEN_UNITS_X = 320 
+SCREEN_UNITS_Y = 480
+SCREEN_WIDTH = SCREEN_UNITS_X
+SCREEN_HEIGHT = SCREEN_UNITS_Y
+
+BASE_X = 0
+BASE_Y = -240
+
+MIN_ENEMY_SPEED = 200
+MAX_ENEMY_SPEED = 300
+
+ALLY_SPEED = 300
+
+MOAISim.openWindow ( "Rocket Lobster", SCREEN_WIDTH, SCREEN_HEIGHT )
+
+viewport = MOAIViewport.new ()
+viewport:setScale ( SCREEN_UNITS_X, SCREEN_UNITS_Y )
+viewport:setSize ( SCREEN_WIDTH, SCREEN_HEIGHT )
+
 layer = MOAILayer2D.new ()
 layer:setViewport ( viewport )
 MOAISim.pushRenderPass ( layer )
