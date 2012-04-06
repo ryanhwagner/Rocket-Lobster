@@ -34,11 +34,17 @@ orderGfx = MOAIGfxQuad2D.new ()
 orderGfx:setTexture ( "assets/images/order.png" )
 orderGfx:setRect ( -ORDER_W/2, -ORDER_H/2, ORDER_W/2, ORDER_H/2 )
 
+order_count = 0
+
 function makeOrder ()
+  order_count = order_count + 1
+
   local start_x = VIEW_W+ORDER_W/2
   local start_y = 70
-  local end_x = -VIEW_W/2+ORDER_W/2
+  local end_x = -VIEW_W/2+order_count*110-30
   local end_y = start_y
+
+
 
   local order = MOAIProp2D.new ()
   order:setDeck ( orderGfx )
@@ -54,4 +60,18 @@ function makeOrder ()
 
 end
 
-makeOrder ()
+mainThread = MOAIThread.new ()
+mainThread:run (
+  function ()
+    local frames = 0
+    makeOrder()
+    while order_count < 4 do
+      coroutine.yield ()
+      frames = frames + 1
+      if frames >= 90 then
+        frames = 0
+        makeOrder ()
+      end
+    end
+  end
+)
