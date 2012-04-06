@@ -1,5 +1,3 @@
-print ( "hello" )
-
 MOAISim.openWindow ( "Penyo Restaurant", 480, 320 )
 
 VIEW_W = 480
@@ -192,9 +190,6 @@ function Order.new (self)
     local speed = speed or 100
     local travelDist = distance ( start_x, start_y, target_x, target_y )
     local travelTime = travelDist / speed
-    print('d ' .. travelDist)
-    print('t ' ..travelTime)
-    print(self.id .. 'moving to:' .. target_x)
     
     --MOAICoroutine.blockOnAction ( self:seekLoc ( target_x, target_y, travelTime, MOAIEaseType.LINEAR ))
     self.anim = self:seekLoc ( target_x, target_y, travelTime, MOAIEaseType.EASE_IN )
