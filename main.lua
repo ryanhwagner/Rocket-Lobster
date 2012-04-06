@@ -1,13 +1,19 @@
-MOAISim.openWindow ( "Penyo Restaurant", 480, 320 )
+-- consts
+
+WINDOW_W = 480
+WINDOW_H = 320
 
 VIEW_W = 480
 VIEW_H = 320
+
+-- debug
 
 MOAIDebugLines.setStyle ( MOAIDebugLines.PARTITION_CELLS, 2, 1, 1, 1 )
 MOAIDebugLines.setStyle ( MOAIDebugLines.PARTITION_PADDED_CELLS, 1, 0.5, 0.5, 0.5 )
 MOAIDebugLines.setStyle ( MOAIDebugLines.PROP_WORLD_BOUNDS, 2, 0.75, 0.75, 0.75 )
 
 -- helpers
+
 function distance ( x1, y1, x2, y2 ) 
   return math.sqrt ((( x2 - x1 ) ^ 2 ) + (( y2 - y1 ) ^ 2 ))
 end
@@ -26,29 +32,13 @@ function pairsByKeys (t, f)
   return iter
 end
 
---
+-- window, viewport
 
-charcodes = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,:;!?()&/-'
-font = MOAIFont.new ()
-font:loadFromTTF ( 'arialbd.ttf', charcodes, 16, 163 )
+MOAISim.openWindow ( "Penyo Restaurant", WINDOW_W, WINDOW_H )
 
 viewport = MOAIViewport.new ()
-viewport:setScale ( 480, 320 )
+viewport:setScale ( WINDOW_W, WINDOW_H )
 viewport:setSize ( VIEW_W, VIEW_H )
-
-partition = MOAIPartition.new ()
-partition:reserveLevels ( 1 )
-partition:setLevel ( 1, 20, 24, 16 )
-
-partitionw = MOAIPartition.new ()
-partitionw:reserveLevels ( 1 )
-partitionw:setLevel ( 1, 20, 24, 16 )
-
-layerBg = MOAILayer2D.new ()
-layerBg:setViewport ( viewport )
-MOAISim.pushRenderPass ( layerBg )
-
-
 
 -- sounds
 
@@ -68,38 +58,21 @@ if MOAIUntzSystem then
   ding:setLooping ( false )
 end
 
+-- fonts
 
--- layers
+charcodes = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,:;!?()&/-'
+font = MOAIFont.new ()
+font:loadFromTTF ( 'arialbd.ttf', charcodes, 16, 163 )
 
-layer = MOAILayer2D.new ()
-layer:setViewport ( viewport )
-layer:setPartition ( partition )
-MOAISim.pushRenderPass ( layer )
+-- partitions and layers
 
-orderContentLayer = MOAILayer2D.new ()
-orderContentLayer:setViewport ( viewport )
-MOAISim.pushRenderPass ( orderContentLayer )
+-- layer: background
 
-layerw = MOAILayer2D.new ()
-layerw:setViewport ( viewport )
-layerw:setPartition ( partitionw )
-MOAISim.pushRenderPass ( layerw )
+layerBg = MOAILayer2D.new ()
+layerBg:setViewport ( viewport )
+MOAISim.pushRenderPass ( layerBg )
 
-
---insert winning area
-
-winGfx = MOAIGfxQuad2D.new ()
-winGfx:setTexture ( "assets/images/order.png" )
-winGfx:setRect ( -100, -50, 0, 50 )
-
-win = MOAIProp2D.new ()
-win:setLoc ( -20, -110 )
-win:setDeck ( winGfx )
-
-layerw:insertProp ( win )
-
-
--- insert bg
+-- content: background
 
 bgGfx = MOAIGfxQuad2D.new ()
 bgGfx:setTexture ( "assets/images/background.png" )
@@ -111,112 +84,55 @@ base:setLoc ( 0, 0 )
 
 layerBg:insertProp ( base )
 
+-- partition: orders
 
--- insert order
+partition = MOAIPartition.new ()
+partition:reserveLevels ( 1 )
+partition:setLevel ( 1, 20, 24, 16 )
 
-ORDER_W = 128
-ORDER_H = 160
+-- partition: drop zones
 
-orderGfx = MOAIGfxQuad2D.new ()
-orderGfx:setTexture ( "assets/images/order.png" )
-orderGfx:setRect ( -ORDER_W/2, -ORDER_H/2, ORDER_W/2, ORDER_H/2 )
+partitionw = MOAIPartition.new ()
+partitionw:reserveLevels ( 1 )
+partitionw:setLevel ( 1, 20, 24, 16 )
 
-Order = {count = 0; id = 0; orders = {}}
+-- layer: drop zones
 
-function Order.remove (self, _id)
-  self.orders[_id] = nil
-  self.count = self.count - 1
+layerw = MOAILayer2D.new ()
+layerw:setViewport ( viewport )
+layerw:setPartition ( partitionw )
+MOAISim.pushRenderPass ( layerw )
 
-  -- tell other orders to move
-  local i = 0
-  for id, o in pairsByKeys(self.orders) do
-    i = i + 1
-    --o.thread:run ( o:move(o:getLocation(i)), o )
-    o:move(o:getLocation(i))
-  end
-end
+-- content: drop zones
 
-function Order.new (self)
-  if ding then 
-    ding:play ()
-  end
+winGfx = MOAIGfxQuad2D.new ()
+winGfx:setTexture ( "assets/images/order.png" )
+winGfx:setRect ( -100, -50, 0, 50 )
 
-  self.count = self.count + 1
-  self.id = self.id + 1
+win = MOAIProp2D.new ()
+win:setLoc ( -20, -110 )
+win:setDeck ( winGfx )
 
-  self.orders[self.id] = MOAIProp2D.new ()
-  self.orders[self.id].id = self.id
-  local order = self.orders[self.id]
+layerw:insertProp ( win )
 
-  local start_x = VIEW_W+ORDER_W/2
-  local start_y = 70
-  local end_y = start_y
+-- layer: orders
 
-  --local order = MOAIProp2D.new ()
-  order:setDeck ( orderGfx )
-  order:setLoc ( start_x, start_y )
-  layer:insertProp ( order )
+layer = MOAILayer2D.new ()
+layer:setViewport ( viewport )
+layer:setPartition ( partition )
+MOAISim.pushRenderPass ( layer )
 
-   
-  order.textbox = MOAITextBox.new ()
-  order.textbox:setColor(99,99,99)
-  order.textbox:setFont ( font )
-  order.textbox:setTextSize ( 20 )
-  order.textbox:setRect ( -20, -20, 20, 20 )
-  order.textbox:setYFlip ( true )
-  order.textbox:setString ( "" .. self.id )
-  order.textbox:setAttrLink (MOAIProp2D.ATTR_X_LOC, order, MOAIProp2D.ATTR_X_LOC)
-  order.textbox:setAttrLink (MOAIProp2D.ATTR_Y_LOC, order, MOAIProp2D.ATTR_Y_LOC)
-  order.textbox:setPriority(1)
-  orderContentLayer:insertProp (order.textbox)
+-- layer: order content 
 
+orderContentLayer = MOAILayer2D.new ()
+orderContentLayer:setViewport ( viewport )
+MOAISim.pushRenderPass ( orderContentLayer )
 
-  function order:main ()
-    self:move(self:getLocation(Order.count))
-  end
+-- content: orders and order content
 
-  function order:remove ()
-    Order:remove(self.id)
-    layer:removeProp ( self )
-    orderContentLayer:removeProp ( self.textbox)
-  end
+require ('order')
 
-  function order:move(target_x,speed)
-    if self.anim then
-      self.anim:stop()
-    end
-
-    local target_y = end_y
-    local speed = speed or 100
-    local travelDist = distance ( start_x, start_y, target_x, target_y )
-    local travelTime = travelDist / speed
-    
-    --MOAICoroutine.blockOnAction ( self:seekLoc ( target_x, target_y, travelTime, MOAIEaseType.LINEAR ))
-    self.anim = self:seekLoc ( target_x, target_y, travelTime, MOAIEaseType.EASE_IN )
-  
-  end
-
-  function order:getLocation (ind)
-    return -VIEW_W/2+ind*110-30
-  end
-
-  function order:gotoTarget (speed)
-    local i = 0
-    for id, o in pairsByKeys(Order.orders) do
-      i = i + 1
-      if(o == self) then
-        --o.thread:run ( o:move(o:getLocation(i)), o )
-        o:move(o:getLocation(i),speed)
-      end
-    end
-  end
-
-  -- order.thread = MOAICoroutine.new ()
-  -- order.thread:run ( order.main, order )
-
-  order:main()
-end
-
+-- interaction
 
 if ( MOAIInputMgr.device.pointer     and
      MOAIInputMgr.device.mouseLeft ) then
@@ -225,7 +141,6 @@ if ( MOAIInputMgr.device.pointer     and
   mouseY = 0
   mouseDown = false
   objectDrag = nil
-
 
   MOAIInputMgr.device.pointer:setCallback (
     function ( x, y )
@@ -271,7 +186,6 @@ if ( MOAIInputMgr.device.pointer     and
     end
   )
 end
-
 
 
 mainThread = MOAICoroutine.new ()
