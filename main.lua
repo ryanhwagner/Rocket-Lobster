@@ -13,6 +13,21 @@ MOAIDebugLines.setStyle ( MOAIDebugLines.PROP_WORLD_BOUNDS, 2, 0.75, 0.75, 0.75 
 function distance ( x1, y1, x2, y2 ) 
   return math.sqrt ((( x2 - x1 ) ^ 2 ) + (( y2 - y1 ) ^ 2 ))
 end
+
+function pairsByKeys (t, f)
+  local a = {}
+  for n in pairs(t) do table.insert(a, n) end
+  table.sort(a, f)
+  local i = 0      -- iterator variable
+  local iter = function ()   -- iterator function
+    i = i + 1
+    if a[i] == nil then return nil
+    else return a[i], t[a[i]]
+    end
+  end
+  return iter
+end
+
 --
 
 charcodes = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,:;!?()&/-'
@@ -66,7 +81,7 @@ function Order.remove (self, _id)
 
   -- tell other orders to move
   local i = 0
-  for id, o in pairs(self.orders) do
+  for id, o in pairsByKeys(self.orders) do
     i = i + 1
     --o.thread:run ( o:move(o:getLocation(i)), o )
     o:move(o:getLocation(i))
@@ -114,7 +129,7 @@ function Order.new (self)
   end
 
   function order:move(target_x)
-    print(self.id .. 'moving to:' .. target_x)
+
     local target_y = end_y
     local speed = 500
     local travelDist = distance ( start_x, start_y, target_x, target_y )
@@ -124,7 +139,7 @@ function Order.new (self)
     print(self.id .. 'moving to:' .. target_x)
     
     --MOAICoroutine.blockOnAction ( self:seekLoc ( target_x, target_y, travelTime, MOAIEaseType.LINEAR ))
-    self:seekLoc ( target_x, target_y, travelTime, MOAIEaseType.LINEAR )
+    self.anim = self:seekLoc ( target_x, target_y, travelTime, MOAIEaseType.LINEAR )
   
   end
 
