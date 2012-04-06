@@ -42,11 +42,17 @@ partition = MOAIPartition.new ()
 partition:reserveLevels ( 1 )
 partition:setLevel ( 1, 20, 24, 16 )
 
+partitionw = MOAIPartition.new ()
+partitionw:reserveLevels ( 1 )
+partitionw:setLevel ( 1, 20, 24, 16 )
+
 layerBg = MOAILayer2D.new ()
 layerBg:setViewport ( viewport )
 MOAISim.pushRenderPass ( layerBg )
 
----
+
+
+-- sounds
 
 MOAIUntzSystem.initialize ()
 
@@ -61,6 +67,33 @@ ding:load ( 'assets/sounds/ding.aif' )
 ding:setVolume ( 0.2 )
 ding:setLooping ( false )
 
+
+-- layers
+
+layer = MOAILayer2D.new ()
+layer:setViewport ( viewport )
+layer:setPartition ( partition )
+MOAISim.pushRenderPass ( layer )
+
+layerw = MOAILayer2D.new ()
+layerw:setViewport ( viewport )
+layerw:setPartition ( partitionw )
+MOAISim.pushRenderPass ( layerw )
+
+
+--insert winning area
+
+winGfx = MOAIGfxQuad2D.new ()
+winGfx:setTexture ( "assets/images/order.png" )
+winGfx:setRect ( -100, -50, 0, 50 )
+
+win = MOAIProp2D.new ()
+win:setLoc ( -20, -110 )
+win:setDeck ( winGfx )
+
+layerw:insertProp ( win )
+
+
 -- insert bg
 
 bgGfx = MOAIGfxQuad2D.new ()
@@ -73,14 +106,9 @@ base:setLoc ( 0, 0 )
 
 layerBg:insertProp ( base )
 
----
-
-layer = MOAILayer2D.new ()
-layer:setViewport ( viewport )
-layer:setPartition ( partition )
-MOAISim.pushRenderPass ( layer )
 
 -- insert order
+
 ORDER_W = 128
 ORDER_H = 160
 
@@ -180,24 +208,42 @@ if ( MOAIInputMgr.device.pointer     and
 
   mouseX = 0
   mouseY = 0
+  mouseDown = false
+  objectDrag = nil
+
 
   MOAIInputMgr.device.pointer:setCallback (
     function ( x, y )
       mouseX, mouseY = layer:wndToWorld ( x, y )
+      
+      if mouseDown then
+        if objectDrag then
+          objectDrag:setLoc ( mouseX, mouseY )
+        end
+      end
     end
   )
-
+  
   MOAIInputMgr.device.mouseLeft:setCallback (
-
     function ( down )
-    
       if down then
+
+        mouseDown = true
         pick = partition:propForPoint ( mouseX, mouseY, 0 )
-        
-        if pick and pick.remove then
-          pick:remove()
+        if pick then
+          objectDrag = pick
         end
+
       else
+
+        dropzone = partitionw:propForPoint ( mouseX, mouseY, 0 )
+        if dropzone then
+          if objectDrag and objectDrag.remove then
+            objectDrag:remove()
+          end
+        end
+        objectDrag = nil
+        mouseDown = false
 
       end
     end
