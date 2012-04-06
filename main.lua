@@ -22,6 +22,13 @@ layerBg = MOAILayer2D.new ()
 layerBg:setViewport ( viewport )
 MOAISim.pushRenderPass ( layerBg )
 
+layer = MOAILayer2D.new ()
+layer:setViewport ( viewport )
+layer:setPartition ( partition )
+MOAISim.pushRenderPass ( layer )
+
+
+
 -- insert bg
 
 bgGfx = MOAIGfxQuad2D.new ()
@@ -82,29 +89,33 @@ if ( MOAIInputMgr.device.pointer     and
 
   mouseX = 0
   mouseY = 0
+  mouseDown = false
+  objectDrag = nil
+
 
   MOAIInputMgr.device.pointer:setCallback (
     function ( x, y )
       mouseX, mouseY = layer:wndToWorld ( x, y )
+      
+      if mouseDown then
+        if objectDrag then
+          objectDrag:setLoc ( mouseX, mouseY )
+        end
+      end
     end
   )
-
+  
   MOAIInputMgr.device.mouseLeft:setCallback (
-
     function ( down )
-    
       if down then
-        print (mouseX)
-        print (mouseY)
-
+        mouseDown = true
         pick = partition:propForPoint ( mouseX, mouseY, 0 )
-        
         if pick then
-          --body = pick:getBody ()
-          layer:removeProp ( pick )
+          objectDrag = pick
         end
       else
-
+        mouseDown = false
+        objectDrag = nil
       end
     end
   )
