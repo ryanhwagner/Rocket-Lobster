@@ -5,13 +5,22 @@ MOAISim.openWindow ( "Penyo Restaurant", 480, 320 )
 VIEW_W = 480
 VIEW_H = 320
 
+MOAIDebugLines.setStyle ( MOAIDebugLines.PARTITION_CELLS, 2, 1, 1, 1 )
+MOAIDebugLines.setStyle ( MOAIDebugLines.PARTITION_PADDED_CELLS, 1, 0.5, 0.5, 0.5 )
+MOAIDebugLines.setStyle ( MOAIDebugLines.PROP_WORLD_BOUNDS, 2, 0.75, 0.75, 0.75 )
+
+
 viewport = MOAIViewport.new ()
 viewport:setScale ( 480, 320 )
 viewport:setSize ( VIEW_W, VIEW_H )
 
-layer = MOAILayer2D.new ()
-layer:setViewport ( viewport )
-MOAISim.pushRenderPass ( layer )
+partition = MOAIPartition.new ()
+partition:reserveLevels ( 1 )
+partition:setLevel ( 1, 20, 24, 16 )
+
+layerBg = MOAILayer2D.new ()
+layerBg:setViewport ( viewport )
+MOAISim.pushRenderPass ( layerBg )
 
 -- insert bg
 
@@ -23,8 +32,14 @@ base = MOAIProp2D.new ()
 base:setDeck ( bgGfx )
 base:setLoc ( 0, 0 )
 
-layer:insertProp ( base )
+layerBg:insertProp ( base )
 
+---
+
+layer = MOAILayer2D.new ()
+layer:setViewport ( viewport )
+layer:setPartition ( partition )
+MOAISim.pushRenderPass ( layer )
 
 -- insert order
 ORDER_W = 128
@@ -59,6 +74,43 @@ function makeOrder ()
   order.thread:run ( order.main, order )
 
 end
+
+
+
+if ( MOAIInputMgr.device.pointer     and
+     MOAIInputMgr.device.mouseLeft ) then
+
+  mouseX = 0
+  mouseY = 0
+
+  MOAIInputMgr.device.pointer:setCallback (
+    function ( x, y )
+      mouseX, mouseY = layer:wndToWorld ( x, y )
+    end
+  )
+
+  MOAIInputMgr.device.mouseLeft:setCallback (
+
+    function ( down )
+    
+      if down then
+        print (mouseX)
+        print (mouseY)
+
+        pick = partition:propForPoint ( mouseX, mouseY, 0 )
+        
+        if pick then
+          --body = pick:getBody ()
+          layer:removeProp ( pick )
+        end
+      else
+
+      end
+    end
+  )
+end
+
+
 
 mainThread = MOAIThread.new ()
 mainThread:run (
