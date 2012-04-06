@@ -18,6 +18,10 @@ partition = MOAIPartition.new ()
 partition:reserveLevels ( 1 )
 partition:setLevel ( 1, 20, 24, 16 )
 
+partitionw = MOAIPartition.new ()
+partitionw:reserveLevels ( 1 )
+partitionw:setLevel ( 1, 20, 24, 16 )
+
 layerBg = MOAILayer2D.new ()
 layerBg:setViewport ( viewport )
 MOAISim.pushRenderPass ( layerBg )
@@ -26,6 +30,23 @@ layer = MOAILayer2D.new ()
 layer:setViewport ( viewport )
 layer:setPartition ( partition )
 MOAISim.pushRenderPass ( layer )
+
+layerw = MOAILayer2D.new ()
+layerw:setViewport ( viewport )
+layerw:setPartition ( partitionw )
+MOAISim.pushRenderPass ( layerw )
+
+--insert winning area
+
+winGfx = MOAIGfxQuad2D.new ()
+winGfx:setTexture ( "assets/images/order.png" )
+winGfx:setRect ( -100, -50, 0, 50 )
+
+
+win = MOAIProp2D.new ()
+win:setLoc ( -20, -110 )
+win:setDeck ( winGfx )
+layerw:insertProp ( win )
 
 
 
@@ -41,12 +62,6 @@ base:setLoc ( 0, 0 )
 
 layerBg:insertProp ( base )
 
----
-
-layer = MOAILayer2D.new ()
-layer:setViewport ( viewport )
-layer:setPartition ( partition )
-MOAISim.pushRenderPass ( layer )
 
 -- insert order
 ORDER_W = 128
@@ -113,9 +128,19 @@ if ( MOAIInputMgr.device.pointer     and
         if pick then
           objectDrag = pick
         end
+
       else
-        mouseDown = false
+
+       
+        
+        dropzone = partitionw:propForPoint ( mouseX, mouseY, 0 )
+        if dropzone then
+          print ("loser")
+          layer:removeProp ( objectDrag )
+        end
         objectDrag = nil
+        mouseDown = false
+
       end
     end
   )
