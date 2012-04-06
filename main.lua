@@ -54,18 +54,21 @@ MOAISim.pushRenderPass ( layerBg )
 
 -- sounds
 
-MOAIUntzSystem.initialize ()
+if MOAIUntzSystem then
 
-beat = MOAIUntzSound.new ()
-beat:load ( 'assets/sounds/mono16.wav' )
-beat:setVolume ( 1 )
-beat:setLooping ( true )
-beat:play ()
+  MOAIUntzSystem.initialize ()
 
-ding = MOAIUntzSound.new ()
-ding:load ( 'assets/sounds/ding.aif' )
-ding:setVolume ( 0.2 )
-ding:setLooping ( false )
+  beat = MOAIUntzSound.new ()
+  beat:load ( 'assets/sounds/mono16.wav' )
+  beat:setVolume ( 1 )
+  beat:setLooping ( true )
+  beat:play ()
+
+  ding = MOAIUntzSound.new ()
+  ding:load ( 'assets/sounds/ding.aif' )
+  ding:setVolume ( 0.2 )
+  ding:setLooping ( false )
+end
 
 
 -- layers
@@ -132,7 +135,9 @@ function Order.remove (self, _id)
 end
 
 function Order.new (self)
-  ding:play ()
+  if ding then 
+    ding:play ()
+  end
 
   self.count = self.count + 1
   self.id = self.id + 1
