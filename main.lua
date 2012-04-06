@@ -185,7 +185,7 @@ function Order.new (self)
     end
 
     local target_y = end_y
-    local speed = 500
+    local speed = 100
     local travelDist = distance ( start_x, start_y, target_x, target_y )
     local travelTime = travelDist / speed
     print('d ' .. travelDist)
@@ -213,6 +213,8 @@ if ( MOAIInputMgr.device.pointer     and
 
   mouseX = 0
   mouseY = 0
+  objectX = 0
+  objectY = 0
   mouseDown = false
   objectDrag = nil
 
@@ -223,7 +225,8 @@ if ( MOAIInputMgr.device.pointer     and
       
       if mouseDown then
         if objectDrag then
-          objectDrag:setLoc ( mouseX, mouseY )
+
+          objectDrag:setLoc ( mouseX-objectX, mouseY-objectY )
         end
       end
     end
@@ -232,11 +235,13 @@ if ( MOAIInputMgr.device.pointer     and
   MOAIInputMgr.device.mouseLeft:setCallback (
     function ( down )
       if down then
-
         mouseDown = true
         pick = partition:propForPoint ( mouseX, mouseY, 0 )
+        
+
         if pick then
-          objectDrag = pick
+          objectDrag = pick 
+          objectX, objectY = objectDrag:worldToModel (mouseX, mouseY)
         end
 
       else
