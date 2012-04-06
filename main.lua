@@ -78,6 +78,10 @@ layer:setViewport ( viewport )
 layer:setPartition ( partition )
 MOAISim.pushRenderPass ( layer )
 
+orderContentLayer = MOAILayer2D.new ()
+orderContentLayer:setViewport ( viewport )
+MOAISim.pushRenderPass ( orderContentLayer )
+
 layerw = MOAILayer2D.new ()
 layerw:setViewport ( viewport )
 layerw:setPartition ( partitionw )
@@ -165,8 +169,8 @@ function Order.new (self)
   order.textbox:setString ( "" .. self.id )
   order.textbox:setAttrLink (MOAIProp2D.ATTR_X_LOC, order, MOAIProp2D.ATTR_X_LOC)
   order.textbox:setAttrLink (MOAIProp2D.ATTR_Y_LOC, order, MOAIProp2D.ATTR_Y_LOC)
-  layer:insertProp (order.textbox)
-
+  order.textbox:setPriority(1)
+  orderContentLayer:insertProp (order.textbox)
 
 
   function order:main ()
@@ -176,16 +180,16 @@ function Order.new (self)
   function order:remove ()
     Order:remove(self.id)
     layer:removeProp ( self )
-    layer:removeProp ( self.textbox)
+    orderContentLayer:removeProp ( self.textbox)
   end
 
-  function order:move(target_x)
+  function order:move(target_x,speed)
     if self.anim then
       self.anim:stop()
     end
 
     local target_y = end_y
-    local speed = 500
+    local speed = speed or 100
     local travelDist = distance ( start_x, start_y, target_x, target_y )
     local travelTime = travelDist / speed
     print('d ' .. travelDist)
@@ -199,6 +203,17 @@ function Order.new (self)
 
   function order:getLocation (ind)
     return -VIEW_W/2+ind*110-30
+  end
+
+  function order:gotoTarget (speed)
+    local i = 0
+    for id, o in pairsByKeys(Order.orders) do
+      i = i + 1
+      if(o == self) then
+        --o.thread:run ( o:move(o:getLocation(i)), o )
+        o:move(o:getLocation(i),speed)
+      end
+    end
   end
 
   -- order.thread = MOAICoroutine.new ()
@@ -232,24 +247,31 @@ if ( MOAIInputMgr.device.pointer     and
   MOAIInputMgr.device.mouseLeft:setCallback (
     function ( down )
       if down then
-
         mouseDown = true
+
         pick = partition:propForPoint ( mouseX, mouseY, 0 )
         if pick then
           objectDrag = pick
+          if objectDrag.anim then
+            objectDrag.anim:stop()
+          end
         end
 
       else
+        mouseDown = false
 
         dropzone = partitionw:propForPoint ( mouseX, mouseY, 0 )
         if dropzone then
           if objectDrag and objectDrag.remove then
             objectDrag:remove()
           end
+        else
+          if objectDrag and objectDrag.gotoTarget then
+            objectDrag:gotoTarget(1000)
+          end
         end
         objectDrag = nil
-        mouseDown = false
-
+      
       end
     end
   )
