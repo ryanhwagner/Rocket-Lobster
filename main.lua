@@ -46,6 +46,21 @@ layerBg = MOAILayer2D.new ()
 layerBg:setViewport ( viewport )
 MOAISim.pushRenderPass ( layerBg )
 
+---
+
+MOAIUntzSystem.initialize ()
+
+beat = MOAIUntzSound.new ()
+beat:load ( 'assets/sounds/mono16.wav' )
+beat:setVolume ( 1 )
+beat:setLooping ( true )
+beat:play ()
+
+ding = MOAIUntzSound.new ()
+ding:load ( 'assets/sounds/ding.aif' )
+ding:setVolume ( 0.2 )
+ding:setLooping ( false )
+
 -- insert bg
 
 bgGfx = MOAIGfxQuad2D.new ()
@@ -89,6 +104,8 @@ function Order.remove (self, _id)
 end
 
 function Order.new (self)
+  ding:play ()
+
   self.count = self.count + 1
   self.id = self.id + 1
 
@@ -118,6 +135,7 @@ function Order.new (self)
   layer:insertProp (order.textbox)
 
 
+
   function order:main ()
     self:move(self:getLocation(Order.count))
   end
@@ -129,6 +147,9 @@ function Order.new (self)
   end
 
   function order:move(target_x)
+    if self.anim then
+      self.anim:stop()
+    end
 
     local target_y = end_y
     local speed = 500
@@ -139,7 +160,7 @@ function Order.new (self)
     print(self.id .. 'moving to:' .. target_x)
     
     --MOAICoroutine.blockOnAction ( self:seekLoc ( target_x, target_y, travelTime, MOAIEaseType.LINEAR ))
-    self.anim = self:seekLoc ( target_x, target_y, travelTime, MOAIEaseType.LINEAR )
+    self.anim = self:seekLoc ( target_x, target_y, travelTime, MOAIEaseType.EASE_IN )
   
   end
 
