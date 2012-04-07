@@ -23,9 +23,6 @@ function Order.remove (self, _id)
 end
 
 function Order.new (self)
-  if ding then 
-    ding:play ()
-  end
 
   self.count = self.count + 1
   self.id = self.id + 1
@@ -62,6 +59,9 @@ function Order.new (self)
   end
 
   function order:remove ()
+    if ding then 
+      ding:play ()
+    end
     Order:remove(self.id)
     layer:removeProp ( self )
     orderContentLayer:removeProp ( self.textbox)
