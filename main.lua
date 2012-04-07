@@ -144,17 +144,31 @@ layerh:setViewport ( viewport )
 layerh:setPartition ( partitionh )
 MOAISim.pushRenderPass ( layerh )
 
+
+-- partition: Menu
+
+partitionm = MOAIPartition.new ()
+partitionm:reserveLevels ( 1 )
+partitionm:setLevel ( 1, 20, 24, 16 )
+
+-- layer: menu
+
+layerm = MOAILayer2D.new ()
+layerm:setViewport ( viewport )
+layerm:setPartition ( partitionm )
+MOAISim.pushRenderPass ( layerm )
+
 -- content: Help
 
-helpGfx = MOAIGfxQuad2D.new ()
-helpGfx:setTexture ( "assets/images/dot.png" )
-helpGfx:setRect ( -100, -25, 25, 75 )
+helppGfx = MOAIGfxQuad2D.new ()
+helppGfx:setTexture ( "assets/images/dot.png" )
+helppGfx:setRect ( -100, -25, 25, 75 )
 
-help = MOAIProp2D.new ()
-help:setLoc ( -120, -70 )
-help:setDeck ( helpGfx )
+helpp = MOAIProp2D.new ()
+helpp:setLoc ( -120, -70 )
+helpp:setDeck ( helppGfx )
 
-layerh:insertProp ( help )
+layerh:insertProp ( helpp )
 
 
 
@@ -181,18 +195,48 @@ if ( MOAIInputMgr.device.pointer     and
   MOAIInputMgr.device.pointer:setCallback (
     function ( x, y )
       mouseX, mouseY = layer:wndToWorld ( x, y )
-      
       if mouseDown then
-        if objectDrag then
+        if helpup then
+        else
 
+        if objectDrag then
           objectDrag:setLoc ( mouseX-objectX, mouseY-objectY )
         end
+        end
       end
+
+
+      if mouseDown then
+        if help then
+
+          help:setLoc ( 0, mouseY-helpY )
+        end
+      end
+
+
+
+
+
     end
   )
   
   MOAIInputMgr.device.mouseLeft:setCallback (
     function ( down )
+
+      if down then
+        mouseDown = true
+        scroll = partitionm:propForPoint ( mouseX, mouseY, 0 )
+
+        if scroll then
+        help = scroll
+        helpX, helpY = help:worldToModel (mouseX, mouseY)
+        end
+      end
+
+
+
+
+
       if down then
         mouseDown = true
         pick = partition:propForPoint ( mouseX, mouseY, 0 )
@@ -208,11 +252,9 @@ if ( MOAIInputMgr.device.pointer     and
               helpneeded = partitionh:propForPoint ( mouseX, mouseY, 0 )
               
               if helpneeded then
-                
                   if helpup then
 
                   else
-
                     helpGfx = MOAIGfxQuad2D.new ()
                     helpGfx:setTexture ( "assets/images/dot.png" )
                     helpGfx:setRect ( 100, -100, -100, 100 )
@@ -221,8 +263,8 @@ if ( MOAIInputMgr.device.pointer     and
                     help:setLoc ( 0, 0 )
                     help:setDeck ( helpGfx )
 
-                    layerh:insertProp ( help )
-                     helpup = 1                  
+                    layerm:insertProp ( help )
+                    helpup = 1     
                   end
               end
 
