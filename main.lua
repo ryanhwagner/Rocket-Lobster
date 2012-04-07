@@ -115,6 +115,35 @@ win:setDeck ( winGfx )
 
 layerw:insertProp ( win )
 
+-- partition: Help locate
+
+partitionh = MOAIPartition.new ()
+partitionh:reserveLevels ( 1 )
+partitionh:setLevel ( 1, 20, 24, 16 )
+
+-- layer: Help
+
+layerh = MOAILayer2D.new ()
+layerh:setViewport ( viewport )
+layerh:setPartition ( partitionh )
+MOAISim.pushRenderPass ( layerh )
+
+-- content: Help
+
+helpGfx = MOAIGfxQuad2D.new ()
+helpGfx:setTexture ( "assets/images/dot.png" )
+helpGfx:setRect ( -100, -25, 25, 75 )
+
+help = MOAIProp2D.new ()
+help:setLoc ( -120, -70 )
+help:setDeck ( helpGfx )
+
+layerh:insertProp ( help )
+
+
+
+
+
 -- layer: orders
 
 layer = MOAILayer2D.new ()
@@ -161,10 +190,8 @@ if ( MOAIInputMgr.device.pointer     and
     function ( down )
       if down then
         mouseDown = true
-
         pick = partition:propForPoint ( mouseX, mouseY, 0 )
-        
-
+    
         if pick then
           objectDrag = pick 
           if objectDrag.anim then
@@ -173,9 +200,28 @@ if ( MOAIInputMgr.device.pointer     and
           objectX, objectY = objectDrag:worldToModel (mouseX, mouseY)
         end
 
+              helpneeded = partitionh:propForPoint ( mouseX, mouseY, 0 )
+              
+              if helpneeded then
+                
+                    helpGfx = MOAIGfxQuad2D.new ()
+                    helpGfx:setTexture ( "assets/images/dot.png" )
+                    helpGfx:setRect ( 200, -200, -200, 200 )
+
+                    help = MOAIProp2D.new ()
+                    help:setLoc ( 0, 0 )
+                    help:setDeck ( helpGfx )
+
+                    layerh:insertProp ( help )
+                    
+                    
+                  help:setPriority(1000)
+                    
+
+              end
+
       else
         mouseDown = false
-
         dropzone = partitionw:propForPoint ( mouseX, mouseY, 0 )
         if dropzone then
           if objectDrag and objectDrag.remove then
