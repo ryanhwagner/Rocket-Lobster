@@ -213,13 +213,7 @@ if ( MOAIInputMgr.device.pointer     and
         end
       end
 
-  if helpup and mouseDown then
-  backtogame = partitionh:propForPoint ( mouseX, mouseY, 0 )
-  if backtogame then
-    layerm:removeProp ( help )
-    helpup = nil
-  end
-  end
+
 
     end
   )
@@ -237,7 +231,13 @@ if ( MOAIInputMgr.device.pointer     and
         end
       end
 
-
+  if helpup and mouseDown then
+  backtogame = partitionh:propForPoint ( mouseX, mouseY, 0 )
+  if backtogame then
+    layerm:removeProp ( help )
+    helpup = nil
+  end
+  end
 
 
 
@@ -268,6 +268,7 @@ if ( MOAIInputMgr.device.pointer     and
                     help:setDeck ( helpGfx )
 
                     layerm:insertProp ( help )
+                    
                     helpup = 1     
                   end
               end

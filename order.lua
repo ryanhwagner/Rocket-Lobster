@@ -53,7 +53,7 @@ function Order.new (self)
   order.textbox:setString ( "" .. self.id )
   order.textbox:setAttrLink (MOAIProp2D.ATTR_X_LOC, order, MOAIProp2D.ATTR_X_LOC)
   order.textbox:setAttrLink (MOAIProp2D.ATTR_Y_LOC, order, MOAIProp2D.ATTR_Y_LOC)
-  order.textbox:setPriority(1)
+  order.textbox:setPriority(-5)
   orderContentLayer:insertProp (order.textbox)
 
 
