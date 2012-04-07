@@ -6,6 +6,8 @@ WINDOW_H = 320
 VIEW_W = 480
 VIEW_H = 320
 
+helpup = nil
+
 -- debug
 
 MOAIDebugLines.setStyle ( MOAIDebugLines.PARTITION_CELLS, 2, 1, 1, 1 )
@@ -121,6 +123,20 @@ partitionh = MOAIPartition.new ()
 partitionh:reserveLevels ( 1 )
 partitionh:setLevel ( 1, 20, 24, 16 )
 
+
+-- layer: orders
+
+layer = MOAILayer2D.new ()
+layer:setViewport ( viewport )
+layer:setPartition ( partition )
+MOAISim.pushRenderPass ( layer )
+
+-- layer: order content 
+
+orderContentLayer = MOAILayer2D.new ()
+orderContentLayer:setViewport ( viewport )
+MOAISim.pushRenderPass ( orderContentLayer )
+
 -- layer: Help
 
 layerh = MOAILayer2D.new ()
@@ -144,18 +160,7 @@ layerh:insertProp ( help )
 
 
 
--- layer: orders
 
-layer = MOAILayer2D.new ()
-layer:setViewport ( viewport )
-layer:setPartition ( partition )
-MOAISim.pushRenderPass ( layer )
-
--- layer: order content 
-
-orderContentLayer = MOAILayer2D.new ()
-orderContentLayer:setViewport ( viewport )
-MOAISim.pushRenderPass ( orderContentLayer )
 
 -- content: orders and order content
 
@@ -204,20 +209,21 @@ if ( MOAIInputMgr.device.pointer     and
               
               if helpneeded then
                 
+                  if helpup then
+
+                  else
+
                     helpGfx = MOAIGfxQuad2D.new ()
                     helpGfx:setTexture ( "assets/images/dot.png" )
-                    helpGfx:setRect ( 200, -200, -200, 200 )
+                    helpGfx:setRect ( 100, -100, -100, 100 )
 
                     help = MOAIProp2D.new ()
                     help:setLoc ( 0, 0 )
                     help:setDeck ( helpGfx )
 
                     layerh:insertProp ( help )
-                    
-                    
-                  help:setPriority(1000)
-                    
-
+                     helpup = 1                  
+                  end
               end
 
       else
