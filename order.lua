@@ -9,38 +9,24 @@ orderGfx:setRect ( -ORDER_W/2, -ORDER_H/2, ORDER_W/2, ORDER_H/2 )
 
 Order = {count = 0; id = 0; orders = {}}
 
-function Order.remove (self, _id)
-  self.orders[_id] = nil
-  self.count = self.count - 1
-
-  -- tell other orders to move
-  local i = 0
-  for id, o in pairsByKeys(self.orders) do
-    i = i + 1
-    --o.thread:run ( o:move(o:getLocation(i)), o )
-    o:move(o:getLocation(i))
-  end
-end
-
 function Order.new (self)
 
   self.count = self.count + 1
   self.id = self.id + 1
 
   self.orders[self.id] = MOAIProp2D.new ()
-  self.orders[self.id].id = self.id
   local order = self.orders[self.id]
+  order.id = self.id
 
-  local start_x = VIEW_W+ORDER_W/2
+  local start_x = WORLD_W/2+ORDER_W/2
   local start_y = 70
   local end_y = start_y
 
-  --local order = MOAIProp2D.new ()
   order:setDeck ( orderGfx )
   order:setLoc ( start_x, start_y )
   layer:insertProp ( order )
-
-   
+  
+  -- textbox
   order.textbox = MOAITextBox.new ()
   order.textbox:setColor(99,99,99)
   order.textbox:setFont ( font )
@@ -50,7 +36,6 @@ function Order.new (self)
   order.textbox:setString ( "" .. self.id )
   order.textbox:setAttrLink (MOAIProp2D.ATTR_X_LOC, order, MOAIProp2D.ATTR_X_LOC)
   order.textbox:setAttrLink (MOAIProp2D.ATTR_Y_LOC, order, MOAIProp2D.ATTR_Y_LOC)
-  order.textbox:setPriority(1)
   orderContentLayer:insertProp (order.textbox)
 
 
@@ -62,9 +47,19 @@ function Order.new (self)
     if ding then 
       ding:play ()
     end
-    Order:remove(self.id)
+    
+    Order.orders[self.id] = nil
+    Order.count = Order.count - 1
+
     layer:removeProp ( self )
-    orderContentLayer:removeProp ( self.textbox)
+    orderContentLayer:removeProp ( self.textbox )
+
+    -- tell other orders to move
+    local i = 0
+    for id, o in pairsByKeys(Order.orders) do
+      i = i + 1
+      o:move(o:getLocation(i))
+    end    
   end
 
   function order:move(target_x,speed)
@@ -83,10 +78,11 @@ function Order.new (self)
   end
 
   function order:getLocation (ind)
-    return -VIEW_W/2+ind*110-30
+    return -WORLD_W/2+ind*110-30
   end
 
   function order:gotoTarget (speed)
+    -- TODO: there should be an easier way to find the ordered index of an item
     local i = 0
     for id, o in pairsByKeys(Order.orders) do
       i = i + 1

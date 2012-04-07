@@ -3,11 +3,12 @@
 WINDOW_W = 480
 WINDOW_H = 320
 
-VIEW_W = 480
-VIEW_H = 320
+WORLD_W = 480
+WORLD_H = 320
 
 -- debug
-DEBUG = false
+
+DEBUG = true
 
 if DEBUG then
   MOAIDebugLines.setStyle ( MOAIDebugLines.PARTITION_CELLS, 2, 1, 1, 1 )
@@ -43,7 +44,7 @@ MOAISim.openWindow ( "Penyo Restaurant", WINDOW_W, WINDOW_H )
 
 viewport = MOAIViewport.new ()
 viewport:setScale ( WINDOW_W, WINDOW_H )
-viewport:setSize ( VIEW_W, VIEW_H )
+viewport:setSize ( WORLD_W, WORLD_H )
 
 -- sounds
 
@@ -69,31 +70,25 @@ charcodes = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,:;
 font = MOAIFont.new ()
 font:loadFromTTF ( 'arialbd.ttf', charcodes, 16, 163 )
 
--- partitions and layers
+-- partitions, layers, content
 
 -- layer: background
 
 layerBg = MOAILayer2D.new ()
 layerBg:setViewport ( viewport )
-MOAISim.pushRenderPass ( layerBg )
+MOAISim.pushRenderPass ( layerBg ) -- deprecated?
 
 -- content: background
 
 bgGfx = MOAIGfxQuad2D.new ()
 bgGfx:setTexture ( "assets/images/background.png" )
-bgGfx:setRect ( -VIEW_W/2, -VIEW_H/2, VIEW_W/2, VIEW_H/2 )
+bgGfx:setRect ( -WORLD_W/2, -WORLD_H/2, WORLD_W/2, WORLD_H/2 )
    
 base = MOAIProp2D.new ()
 base:setDeck ( bgGfx )
 base:setLoc ( 0, 0 )
 
 layerBg:insertProp ( base )
-
--- partition: orders
-
-partition = MOAIPartition.new ()
-partition:reserveLevels ( 1 )
-partition:setLevel ( 1, 20, 24, 16 )
 
 -- partition: drop zones
 
@@ -106,7 +101,7 @@ partitionw:setLevel ( 1, 20, 24, 16 )
 layerw = MOAILayer2D.new ()
 layerw:setViewport ( viewport )
 layerw:setPartition ( partitionw )
-MOAISim.pushRenderPass ( layerw )
+MOAISim.pushRenderPass ( layerw ) -- deprecated?
 
 -- content: drop zones
 
@@ -120,22 +115,30 @@ win:setDeck ( winGfx )
 
 layerw:insertProp ( win )
 
+-- partition: orders
+
+partition = MOAIPartition.new ()
+partition:reserveLevels ( 1 )
+partition:setLevel ( 1, 20, 24, 16 )
+
 -- layer: orders
 
 layer = MOAILayer2D.new ()
 layer:setViewport ( viewport )
 layer:setPartition ( partition )
-MOAISim.pushRenderPass ( layer )
+MOAISim.pushRenderPass ( layer ) -- deprecated?
+
+-- content: orders and order content
+
+require ('order')
 
 -- layer: order content 
 
 orderContentLayer = MOAILayer2D.new ()
 orderContentLayer:setViewport ( viewport )
-MOAISim.pushRenderPass ( orderContentLayer )
+MOAISim.pushRenderPass ( orderContentLayer ) -- deprecated?
 
--- content: orders and order content
 
-require ('order')
 
 -- interaction
 
@@ -197,7 +200,6 @@ if ( MOAIInputMgr.device.pointer     and
     end
   )
 end
-
 
 mainThread = MOAICoroutine.new ()
 mainThread:run (
